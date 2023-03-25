@@ -1,0 +1,57 @@
+# Définition de la version de Vagrantfile
+Vagrant.configure("2") do |config|
+  
+    # Nom de la machine virtuelle
+    config.vm.define "dev"
+    
+    # Spécification de la box utilisée pour la VM
+    config.vm.box = "ubuntu/bionic64"
+    
+    # Configuration des paramètres de la VM
+    config.vm.provider "virtualbox" do |vb|
+      vb.memory = "4096"
+      vb.cpus = 2
+    end
+    
+    # Configuration de la liaison de dossiers
+    config.vm.synced_folder ".", "/vagrant", disabled: true
+    
+    # Configuration de l'adresse IP statique
+    config.vm.network "private_network", ip: "192.168.50.4"
+    
+    # Installation de packages de développement
+    config.vm.provision "shell", inline: <<-SHELL
+      sudo apt-get update
+      sudo apt-get install -y build-essential python3-dev python3-pip
+    SHELL
+    
+    # Installation de Ansible
+    config.vm.provision "shell", inline: <<-SHELL
+      sudo apt-get update
+      sudo apt-get install -y software-properties-common
+      sudo apt-add-repository --yes --update ppa:ansible/ansible
+      sudo apt-get install -y ansible
+    SHELL
+    
+    # Installation de Maven
+    config.vm.provision "shell", inline: <<-SHELL
+      sudo apt-get install -y maven
+    SHELL
+    
+    # Installation de Docker
+    config.vm.provision "shell", inline: <<-SHELL
+      sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
+      curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+      sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+      sudo apt-get update
+      sudo apt-get install -y docker-ce
+      sudo usermod -aG docker vagrant
+    SHELL
+    
+    # Installation de Java
+    config.vm.provision "shell", inline: <<-SHELL
+      sudo apt-get install -y default-jdk
+    SHELL
+    
+  end
+  
